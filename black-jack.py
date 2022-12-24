@@ -192,10 +192,14 @@ def main():
     names = []
     number = games.ask_number("Сколько всего игроков? (1 - 7): ",
                               low=1, high=7)
-    for i in range(number):
-        name = gui.enterbox("Введите имя игрока № " +
-                            str(i + 1), TITLE, default='Игрок' + str(i + 1))
-        names.append(name)
+    if number is None:
+        exit()
+    fields = ['Игрок' + str(i+1) for i in range(number)]
+
+    name = gui.multenterbox("Введите имена игроков",
+                            TITLE, fields=fields, values=fields)
+    if names is None:
+        exit()
 
     game = BJ_Game(names)
 
