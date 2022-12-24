@@ -81,7 +81,8 @@ class BJ_Player(BJ_Hand):
     """ Игрок в Блек-джек. """
 
     def is_hitting(self):
-        response = games.ask_yes_no(str(self) + "\nБудете брать еще карты ?")
+        response = gui.buttonbox(str(self)+"\nБудете брать еще карты?",
+                                 title=TITLE, choises=['', ''], images=self.card_images())
         return response
 
     def bust(self):
