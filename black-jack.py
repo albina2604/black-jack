@@ -1,9 +1,10 @@
 # Блек-джек
 # От 1 до 7 игроков против дилера
 
+import easygui as gui
+
 import cards
 import games
-import easygui as gui
 
 TITLE = 'Блек Джек'
 ICON = 'black-jack.png'
@@ -80,22 +81,21 @@ class BJ_Player(BJ_Hand):
     """ Игрок в Блек-джек. """
 
     def is_hitting(self):
-        response = games.ask_yes_no(self.name +
-                                    ", будете брать еще карты? ")
+        response = games.ask_yes_no(str(self) + "\nБудете брать еще карты ?")
         return response
 
     def bust(self):
-        gui.msgbox(self.name + " перебрал(а).", TITLE)
-        self.lose()
+        gui.msgbox(str(self) + '\n' + self.name + " перебрал и проиграл.",
+                   TITLE, image=ICON)
 
     def lose(self):
-        gui.msgbox(self.name + " проиграл(а).", TITLE)
+        return str(self) + " проиграл(а)."
 
     def win(self):
-        gui.msgbox(self.name + " выиграл(а).", TITLE)
+        return str(self) + " выиграл(а)."
 
     def push(self):
-        gui.msgbox(self.name + " сыграл(а) с дилером вничью.", TITLE)
+        return str(self) + " сыграл(а) с дилером вничью."
 
 
 class BJ_Dealer(BJ_Hand):
@@ -105,7 +105,8 @@ class BJ_Dealer(BJ_Hand):
         return self.total < 17
 
     def bust(self):
-        gui.msgbox(self.name + " перебрал.", TITLE)
+        gui.msgbox(str(self) + '\n' + self.name +
+                   " перебрал.", TITLE, image=ICON)
 
     def flip_first_card(self):
         first_card = self.cards[0]
@@ -138,18 +139,21 @@ class BJ_Game:
     def __additional_cards(self, player):
         while not player.is_busted() and player.is_hitting():
             self.deck.deal([player])
-            gui.msgbox(str(player), TITLE)
+
             if player.is_busted():
                 player.bust()
+            elif player is self.dealer:
+                gui.msgbox('Дилер взял дополнительную карту.\n' +
+                           str(player), TITLE, image=ICON)
 
     def play(self):
         # сдача всем по две карты
         self.deck.deal(self.players + [self.dealer], per_hand=2)
         self.dealer.flip_first_card()
         # первая из карт, сданных дилеру, переворачивается
-        for player in self.players:
-            gui.msgbox(str(player), TITLE)
-        gui.msgbox(str(self.dealer), TITLE)
+        gui.msgbox('\n'.join(
+            (str(player) for player in self.players + [self.dealer])
+        ), TITLE, image=ICON)
 
         # сдача дополнительных карт игрокам
         for player in self.players:
@@ -159,25 +163,27 @@ class BJ_Game:
 
         if not self.still_playing:
             # все игроки перебрали, покажем только "руку" дилера
-            gui.msgbox(str(self.dealer), TITLE)
+            gui.msgbox(str(self.dealer), TITLE, image=ICON)
         else:
             # сдача дополнительных карт дилеру
-            gui.msgbox(str(self.dealer), TITLE)
+            gui.msgbox(str(self.dealer), TITLE, image=ICON)
             self.__additional_cards(self.dealer)
 
+            results = []
             if self.dealer.is_busted():
                 # выигрывают все, кто еще остался в игре
                 for player in self.still_playing:
-                    player.win()
+                    results.append(player.win())
             else:
                 # сравниваем суммы очков у дилера и у игроков, оставшихся в игре
                 for player in self.still_playing:
                     if player.total > self.dealer.total:
-                        player.win()
+                        results.append(player.win())
                     elif player.total < self.dealer.total:
-                        player.lose()
+                        results.append(player.lose())
                     else:
-                        player.push()
+                        results.append(player.push())
+            gui.msgbox('\n'.join(results), TITLE, image=ICON)
 
         # удаление всех карт
         for player in self.players:
@@ -186,27 +192,24 @@ class BJ_Game:
 
 
 def main():
-    gui.msgbox("Добро пожаловать в игру Блек-джек!",
-               TITLE, image='black-jack.png')
+    gui.msgbox("Добро пожаловать в игру Блек-джек!", TITLE, image=ICON)
 
     names = []
     number = games.ask_number("Сколько всего игроков? (1 - 7): ",
                               low=1, high=7)
     if number is None:
         exit()
-    fields = ['Игрок' + str(i+1) for i in range(number)]
-
-    name = gui.multenterbox("Введите имена игроков",
-                            TITLE, fields=fields, values=fields)
+    fields = ['Игрок' + str(i + 1) for i in range(number)]
+    names = gui.multenterbox("Введите имена игроков",
+                             TITLE, fields=fields, values=fields)
     if names is None:
         exit()
-
     game = BJ_Game(names)
 
     again = True
-    while again != "n":
+    while again:
         game.play()
-        again = games.ask_yes_no("Хотите сыграть еще раз? ", TITLE)
+        again = games.ask_yes_no("Хотите сыграть еще раз?", TITLE)
 
 
 main()
