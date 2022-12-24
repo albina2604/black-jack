@@ -6,6 +6,7 @@ import games
 import easygui as gui
 
 TITLE = 'Блек Джек'
+ICON = 'black-jack.png'
 
 
 class BJ_Card(cards.Positionable_Card):
@@ -79,22 +80,22 @@ class BJ_Player(BJ_Hand):
     """ Игрок в Блек-джек. """
 
     def is_hitting(self):
-        response = games.ask_yes_no("\n" + self.name +
-                                    ", будете брать еще карты")
-        return response == "y"
+        response = games.ask_yes_no(self.name +
+                                    ", будете брать еще карты? ")
+        return response
 
     def bust(self):
-        print(self.name, "перебрал(а).")
+        gui.msgbox(self.name + " перебрал(а).", TITLE)
         self.lose()
 
     def lose(self):
-        print(self.name, "проиграл(а).")
+        gui.msgbox(self.name + " проиграл(а).", TITLE)
 
     def win(self):
-        print(self.name, "выиграл(а).")
+        gui.msgbox(self.name + " выиграл(а).", TITLE)
 
     def push(self):
-        print(self.name, "сыграл(а) с дилером вничью.")
+        gui.msgbox(self.name + " сыграл(а) с дилером вничью.", TITLE)
 
 
 class BJ_Dealer(BJ_Hand):
@@ -104,7 +105,7 @@ class BJ_Dealer(BJ_Hand):
         return self.total < 17
 
     def bust(self):
-        print(self.name, "перебрал.")
+        gui.msgbox(self.name + " перебрал.", TITLE)
 
     def flip_first_card(self):
         first_card = self.cards[0]
@@ -137,7 +138,7 @@ class BJ_Game:
     def __additional_cards(self, player):
         while not player.is_busted() and player.is_hitting():
             self.deck.deal([player])
-            print(player)
+            gui.msgbox(str(player), TITLE)
             if player.is_busted():
                 player.bust()
 
@@ -147,8 +148,8 @@ class BJ_Game:
         self.dealer.flip_first_card()
         # первая из карт, сданных дилеру, переворачивается
         for player in self.players:
-            print(player)
-        print(self.dealer)
+            gui.msgbox(str(player), TITLE)
+        gui.msgbox(str(self.dealer), TITLE)
 
         # сдача дополнительных карт игрокам
         for player in self.players:
@@ -158,10 +159,10 @@ class BJ_Game:
 
         if not self.still_playing:
             # все игроки перебрали, покажем только "руку" дилера
-            print(self.dealer)
+            gui.msgbox(str(self.dealer), TITLE)
         else:
             # сдача дополнительных карт дилеру
-            print(self.dealer)
+            gui.msgbox(str(self.dealer), TITLE)
             self.__additional_cards(self.dealer)
 
             if self.dealer.is_busted():
@@ -185,7 +186,8 @@ class BJ_Game:
 
 
 def main():
-    gui.msgbox("\t\tДобро пожаловать в игру Блек-джек!\n", TITLE)
+    gui.msgbox("Добро пожаловать в игру Блек-джек!",
+               TITLE, image='black-jack.png')
 
     names = []
     number = games.ask_number("Сколько всего игроков? (1 - 7): ",
@@ -200,7 +202,7 @@ def main():
     again = True
     while again != "n":
         game.play()
-        again = games.ask_yes_no("\nХотите сыграть еще раз? ", TITLE)
+        again = games.ask_yes_no("Хотите сыграть еще раз? ", TITLE)
 
 
 main()
