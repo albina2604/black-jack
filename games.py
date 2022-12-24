@@ -11,7 +11,7 @@ def ask_yes_no(question, title='Game'):
 
 def ask_number(question, low, high, title='Game'):
     """Просит ввести число из заданного диапазона."""
-    return gui.integerbox(question, title, default=low, lowerbound=low, upperbound=high)
+    return gui.integerbox(question, title, default=int((low+high)/2), lowerbound=low, upperbound=high)
 
 
 if __name__ == "__main__":
