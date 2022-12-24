@@ -81,9 +81,9 @@ class BJ_Player(BJ_Hand):
     """ Игрок в Блек-джек. """
 
     def is_hitting(self):
-        response = gui.buttonbox(str(self)+"\nБудете брать еще карты?",
-                                 title=TITLE, choises=['', ''], images=self.card_images())
-        return response
+        response = gui.buttonbox(str(self) + "\nБудете брать еще карты ?", title=TITLE,
+                                 choices=['Да', 'Нет'], images=self.card_images())
+        return response == 'Да'
 
     def bust(self):
         gui.msgbox(str(self) + '\n' + self.name + " перебрал и проиграл.",
@@ -140,7 +140,6 @@ class BJ_Game:
     def __additional_cards(self, player):
         while not player.is_busted() and player.is_hitting():
             self.deck.deal([player])
-
             if player.is_busted():
                 player.bust()
             elif player is self.dealer:

@@ -9,7 +9,6 @@ class Card:
     RANKS = ["Т", "2", "3", "4", "5", "6", "7",
              "8", "9", "10", "В", "Д", "K"]
     SUITS = [u'\u2660', u'\u2663', u'\u2665', u'\u2666']  # ♠ ♣ ♥ ♦
-
     SUITS_STR = ''.join(SUITS)
     SUITS_NAMES = 'schd'
 
@@ -62,10 +61,9 @@ class Hand:
             rep = "<пусто>"
         return rep
 
-    def card_image(self):
+    def card_images(self):
         rep = []
         if self.cards:
-
             for card in self.cards:
                 card_name = str(card)
                 if card_name == 'XX':
@@ -74,7 +72,7 @@ class Hand:
                     table = card_name.maketrans(
                         Card.SUITS_STR, Card.SUITS_NAMES)
                     card_name = card_name.translate(table)
-                    filename = f'{card_name[-1]}{(Card.RANKS.index(card_name[:-1])+1):0>2}.png'
+                    filename = f'{card_name[-1]}{(Card.RANKS.index(card_name[:-1]) + 1):0>2}.png'
                 rep.append('assets/' + filename)
         return rep
 
