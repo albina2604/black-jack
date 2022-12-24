@@ -1,7 +1,12 @@
 # Блек-джек
 # От 1 до 7 игроков против дилера
 
-import cards, games     
+import cards
+import games
+import easygui as gui
+
+TITLE = 'Блек Джек'
+
 
 class BJ_Card(cards.Positionable_Card):
     """ Карта для игры в Блек-джек. """
@@ -17,34 +22,37 @@ class BJ_Card(cards.Positionable_Card):
             v = None
         return v
 
+
 class BJ_Deck(cards.Deck):
     """ Колода для игры в Блек-джек. """
+
     def populate(self):
-        for suit in BJ_Card.SUITS: 
-            for rank in BJ_Card.RANKS: 
+        for suit in BJ_Card.SUITS:
+            for rank in BJ_Card.RANKS:
                 self.cards.append(BJ_Card(rank, suit))
-    
+
 
 class BJ_Hand(cards.Hand):
     """ Рука игрока в Блек-джек. """
+
     def __init__(self, name):
         super(BJ_Hand, self).__init__()
         self.name = name
 
     def __str__(self):
-        rep = self.name + ":\t" + super(BJ_Hand, self).__str__()  
+        rep = self.name + ":\t" + super(BJ_Hand, self).__str__()
         if self.total:
-            rep += "(" + str(self.total) + ")"        
+            rep += "(" + str(self.total) + ")"
         return rep
 
-    @property     
+    @property
     def total(self):
-        # если у одной из карт value равно None, 
+        # если у одной из карт value равно None,
         # то и все свойство равно None
         for card in self.cards:
             if not card.value:
                 return None
-        
+
         # суммируем очки, считая каждый туз за 1 очко
         # определяем, есть ли туз на руках у игрока
         t = 0
@@ -53,14 +61,14 @@ class BJ_Hand(cards.Hand):
             t += card.value
             if card.value == BJ_Card.ACE_VALUE:
                 contains_ace = True
-                
-        # если на руках есть туз и сумма очков не превышает 11, 
+
+        # если на руках есть туз и сумма очков не превышает 11,
         # будем считать туз за 11 очков
         if contains_ace and t <= 11:
-            # прибавить нужно лишь 10, 
+            # прибавить нужно лишь 10,
             # потому что единица уже вошла в общую сумму
-            t += 10   
-                
+            t += 10
+
         return t
 
     def is_busted(self):
@@ -69,9 +77,10 @@ class BJ_Hand(cards.Hand):
 
 class BJ_Player(BJ_Hand):
     """ Игрок в Блек-джек. """
+
     def is_hitting(self):
-        response = games.ask_yes_no("\n" + self.name + 
-            ", будете брать еще карты")
+        response = games.ask_yes_no("\n" + self.name +
+                                    ", будете брать еще карты")
         return response == "y"
 
     def bust(self):
@@ -87,9 +96,10 @@ class BJ_Player(BJ_Hand):
     def push(self):
         print(self.name, "сыграл(а) с дилером вничью.")
 
-        
+
 class BJ_Dealer(BJ_Hand):
     """ Дилер в Блек-джек. """
+
     def is_hitting(self):
         return self.total < 17
 
@@ -103,7 +113,8 @@ class BJ_Dealer(BJ_Hand):
 
 class BJ_Game:
     """ Игра в Блек-джек. """
-    def __init__(self, names):      
+
+    def __init__(self, names):
         self.players = []
         for name in names:
             player = BJ_Player(name)
@@ -129,11 +140,11 @@ class BJ_Game:
             print(player)
             if player.is_busted():
                 player.bust()
-           
+
     def play(self):
         # сдача всем по две карты
-        self.deck.deal(self.players + [self.dealer], per_hand = 2)
-        self.dealer.flip_first_card()    
+        self.deck.deal(self.players + [self.dealer], per_hand=2)
+        self.dealer.flip_first_card()
         # первая из карт, сданных дилеру, переворачивается
         for player in self.players:
             print(player)
@@ -156,7 +167,7 @@ class BJ_Game:
             if self.dealer.is_busted():
                 # выигрывают все, кто еще остался в игре
                 for player in self.still_playing:
-                    player.win()                    
+                    player.win()
             else:
                 # сравниваем суммы очков у дилера и у игроков, оставшихся в игре
                 for player in self.still_playing:
@@ -171,25 +182,25 @@ class BJ_Game:
         for player in self.players:
             player.clear()
         self.dealer.clear()
-        
+
 
 def main():
-    print("\t\tДобро пожаловать в игру Блек-джек!\n")
-    
+    gui.msgbox("\t\tДобро пожаловать в игру Блек-джек!\n", TITLE)
+
     names = []
-    number = games.ask_number("Сколько всего игроков? (1 - 7): ", 
-        low = 1, high = 7)
+    number = games.ask_number("Сколько всего игроков? (1 - 7): ",
+                              low=1, high=7)
     for i in range(number):
-        name = input("Введите имя игрока № " + str(i + 1) + " :")
+        name = gui.enterbox("Введите имя игрока № " +
+                            str(i + 1), TITLE, default='Игрок' + str(i + 1))
         names.append(name)
-    print()
-        
+
     game = BJ_Game(names)
 
-    again = None
+    again = True
     while again != "n":
         game.play()
-        again = games.ask_yes_no("\nХотите сыграть еще раз")
+        again = games.ask_yes_no("\nХотите сыграть еще раз? ", TITLE)
 
 
 main()
